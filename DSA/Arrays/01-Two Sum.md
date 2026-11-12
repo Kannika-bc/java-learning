@@ -1,4 +1,4 @@
-# Two Sum – LeetCode 1
+# Two Sum
 
 **Difficulty:** Easy  
 **Topics:** Array, HashMap  
