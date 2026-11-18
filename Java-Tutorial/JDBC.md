@@ -280,3 +280,185 @@ These are the concepts you should be able to explain without looking at notes:
 - Basic CRUD operations.
 
 **Next topic to learn:** JDBC CRUD operations using MySQL. Practice INSERT, SELECT, UPDATE and DELETE with Java code. This will help you understand all the above concepts practically.
+
+If an interviewer asks you to **write a JDBC program in Java**, the best approach is to write a program that connects to MySQL, inserts a student record, retrieves the records, and displays them.
+
+This single program demonstrates the important JDBC concepts.
+
+# **Complete JDBC Program – Student Management**
+
+### **1. MySQL table**
+
+First, create a database and table in MySQL.
+
+```
+CREATE DATABASE college;
+
+USE college;
+
+CREATE TABLE student (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    age INT
+);
+```
+
+### **2. Complete Java JDBC code**
+
+```
+
+package com.practice.jdbclearning;
+
+import java.sql.*;
+
+public class LaunchApp {
+
+    public static void main(String[] args) {
+
+        // Database details
+        String url = "jdbc:mysql://localhost:3306/college";
+        String username = "root";
+        String password = "password";
+
+        // Establish connection
+        try (Connection con =
+                DriverManager.getConnection(url, username, password)) {
+
+            System.out.println("Database connected successfully!");
+
+            // INSERT operation
+            String insertQuery =
+                "INSERT INTO student (id, name, age) VALUES (?, ?, ?)";
+
+            try (PreparedStatement ps =
+                    con.prepareStatement(insertQuery)) {
+
+                ps.setInt(1, 1);
+                ps.setString(2, "John");
+                ps.setInt(3, 22);
+
+                int rows = ps.executeUpdate();
+
+                System.out.println(rows + " record inserted");
+            }
+
+            // SELECT operation
+            String selectQuery = "SELECT * FROM student";
+
+            try (PreparedStatement ps =
+                    con.prepareStatement(selectQuery);
+                 ResultSet rs = ps.executeQuery()) {
+
+                System.out.println("Student Details:");
+
+                while (rs.next()) {
+
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    int age = rs.getInt("age");
+
+                    System.out.println(
+                        id + " " + name + " " + age
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+
+*Before running:* Add the MySQL Connector/J dependency to your project and replace the username and password with your actual MySQL credentials.
+
+### **3. Output**
+
+```
+Database connected successfully!
+
+1 record inserted
+
+Student Details:
+1 John 22
+```
+
+## **4. Understand the execution flow**
+
+Remember this sequence for interviews:
+
+1. **Import JDBC**
+
+   `import java.sql.*;`
+
+   Provides JDBC classes and interfaces.
+2. **Establish connection**
+
+   `DriverManager.getConnection()`
+
+   Connects Java with MySQL.
+3. **Create PreparedStatement**
+
+   `con.prepareStatement()`
+
+   Prepares the SQL query.
+4. **Set values**
+
+   `ps.setInt()` and `ps.setString()`
+
+   Pass values to `?` placeholders.
+5. **Execute query**
+
+   `executeUpdate()` for INSERT and `executeQuery()` for SELECT.
+6. **Process ResultSet**
+
+   `rs.next()` reads each row.
+7. **Close resources**
+
+   Try-with-resources automatically closes the connection, statement and ResultSet.
+
+## **5. What if the interviewer asks for UPDATE and DELETE?**
+
+You can use the same connection and PreparedStatement approach.
+
+**UPDATE:**
+
+```
+String query = "UPDATE student SET age = ? WHERE id = ?";
+
+PreparedStatement ps = con.prepareStatement(query);
+
+ps.setInt(1, 23);
+ps.setInt(2, 1);
+
+ps.executeUpdate();
+```
+
+**DELETE:**
+
+```
+String query = "DELETE FROM student WHERE id = ?";
+
+PreparedStatement ps = con.prepareStatement(query);
+
+ps.setInt(1, 1);
+
+ps.executeUpdate();
+```
+
+## **6. Important interview tip**
+
+If you remember just one JDBC coding pattern, remember this:
+
+| Operation       | JDBC method                     |
+| --------------- | ------------------------------- |
+| Connect         | `DriverManager.getConnection()` |
+| INSERT          | `executeUpdate()`               |
+| SELECT          | `executeQuery()`                |
+| UPDATE          | `executeUpdate()`               |
+| DELETE          | `executeUpdate()`               |
+| Read records    | `rs.next()`                     |
+| Close resources | `close()` / try-with-resources  |
+
+**My suggestion:** Practise writing the complete program once without looking at the notes. Then try writing it again using only the execution flow. This is a good way to prepare for fresher Java interviews.
